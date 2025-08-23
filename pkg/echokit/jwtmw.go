@@ -3,15 +3,14 @@ package echokit
 import (
 	"net/http"
 
+	"github.com/NRF24l01/go-web-utils/core"
 	"github.com/NRF24l01/go-web-utils/jwtutils"
 
 	"github.com/labstack/echo/v4"
 )
 
-type JwtAccessSecretProvider func() []byte
-
 // JWTMiddleware создает middleware для проверки JWT токена
-func JWTMiddleware(accessSecretProvider JwtAccessSecretProvider) echo.MiddlewareFunc {
+func JWTMiddleware(accessSecretProvider core.Provider) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
 			// Извлекаем токен из заголовка Authorization
