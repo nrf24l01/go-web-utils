@@ -3,14 +3,13 @@ package echokit
 import (
 	"net/http"
 
-	"github.com/NRF24l01/go-web-utils/core"
 	"github.com/NRF24l01/go-web-utils/jwtutils"
 
 	"github.com/labstack/echo/v4"
 )
 
 // JWTMiddleware создает middleware для проверки JWT токена
-func JWTMiddleware(accessSecretProvider core.Provider) echo.MiddlewareFunc {
+func JWTMiddleware(accessSecret []byte) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
 			// Извлекаем токен из заголовка Authorization
@@ -25,14 +24,12 @@ func JWTMiddleware(accessSecretProvider core.Provider) echo.MiddlewareFunc {
 			}
 			tokenString := authHeader[7:]
 
-			// Получаем секретный ключ через SecretProvider
-			secret := accessSecretProvider()
-			if len(secret) == 0 {
+			if len(accessSecret) == 0 {
 				return c.JSON(http.StatusInternalServerError, map[string]string{"error": "jwt secret is not configured"})
 			}
 
 			// Проверяем токен
-			claims, err := jwtutils.ValidateToken(tokenString, secret)
+			claims, err := jwtutils.ValidateToken(tokenString, accessSecret)
 			if err != nil {
 				return c.JSON(http.StatusUnauthorized, map[string]string{"error": "invalid or expired token"})
 			}
