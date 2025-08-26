@@ -3,7 +3,7 @@ package echokit
 import (
 	"net/http"
 
-	"github.com/NRF24l01/go-web-utils/jwtutils"
+	"github.com/NRF24l01/go-web-utils/jwtutil"
 
 	"github.com/labstack/echo/v4"
 )
@@ -29,7 +29,7 @@ func JWTMiddleware(accessSecret []byte) echo.MiddlewareFunc {
 			}
 
 			// Проверяем токен
-			claims, err := jwtutils.ValidateToken(tokenString, accessSecret)
+			claims, err := jwtutil.ValidateToken(tokenString, accessSecret)
 			if err != nil {
 				return c.JSON(http.StatusUnauthorized, map[string]string{"error": "invalid or expired token"})
 			}
