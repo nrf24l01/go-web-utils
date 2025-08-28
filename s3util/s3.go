@@ -21,7 +21,7 @@ type S3Config struct {
 }
 
 type Client struct {
-	minio  *minio.Client
+	minio   *minio.Client
 	baseURL string
 }
 
