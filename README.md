@@ -2,7 +2,7 @@
 
 ## Классы утилит
 ### S3 утилиты
-[Основной файл](https://github.com/NRF24l01/go-web-utils/pkg/s3util/s3.go)
+[Основной файл](https://github.com/nrf24l01/go-web-utils/pkg/s3util/s3.go)
 #### Документация для pkg/s3util/s3.go
 
 Описание

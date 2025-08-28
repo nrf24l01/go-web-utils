@@ -3,7 +3,7 @@ package echokit
 import (
 	"net/http"
 
-	"github.com/NRF24l01/go-web-utils/jwtutil"
+	"github.com/nrf24l01/go-web-utils/jwtutil"
 
 	"github.com/labstack/echo/v4"
 )
