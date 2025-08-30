@@ -53,27 +53,49 @@ func HashPassword(password string, p *Params) (string, error) {
 }
 
 func CheckPassword(password string, encodedHash string) (bool, error) {
-	parts := strings.Split(encodedHash, "$")
-	if len(parts) != 6 {
-		return false, errors.New("invalid encoded hash format")
+	encodedHash = strings.TrimSpace(encodedHash)
+
+	// Split and remove empty segments so leading/trailing '$' don't break parsing
+	rawParts := strings.Split(encodedHash, "$")
+	parts := make([]string, 0, len(rawParts))
+	for _, p := range rawParts {
+		if p != "" {
+			parts = append(parts, p)
+		}
 	}
 
+	// Expect: ["argon2id", "v=19", "m=...,t=...,p=...", "<salt>", "<hash>"]
+	if len(parts) != 5 {
+		return false, errors.New("invalid encoded hash format")
+	}
+	if parts[0] != "argon2id" {
+		return false, errors.New("unsupported algorithm")
+	}
+
+	// params are in parts[2]
 	var memory uint32
 	var time uint32
 	var parallelism uint8
-	_, err := fmt.Sscanf(parts[3], "m=%d,t=%d,p=%d", &memory, &time, &parallelism)
+	_, err := fmt.Sscanf(parts[2], "m=%d,t=%d,p=%d", &memory, &time, &parallelism)
 	if err != nil {
 		return false, err
 	}
 
-	salt, err := base64.RawStdEncoding.DecodeString(parts[4])
+	// Try RawStd first, fall back to Std (handles presence/absence of padding)
+	salt, err := base64.RawStdEncoding.DecodeString(parts[3])
 	if err != nil {
-		return false, err
+		salt, err = base64.StdEncoding.DecodeString(parts[3])
+		if err != nil {
+			return false, err
+		}
 	}
 
-	hash, err := base64.RawStdEncoding.DecodeString(parts[5])
+	hash, err := base64.RawStdEncoding.DecodeString(parts[4])
 	if err != nil {
-		return false, err
+		hash, err = base64.StdEncoding.DecodeString(parts[4])
+		if err != nil {
+			return false, err
+		}
 	}
 
 	computedHash := argon2.IDKey([]byte(password), salt, time, memory, parallelism, uint32(len(hash)))
