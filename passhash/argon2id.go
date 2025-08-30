@@ -64,41 +64,72 @@ func CheckPassword(password string, encodedHash string) (bool, error) {
 		}
 	}
 
-	// Expect: ["argon2id", "v=19", "m=...,t=...,p=...", "<salt>", "<hash>"]
-	if len(parts) != 5 {
-		return false, errors.New("invalid encoded hash format")
+	// Ensure algorithm present
+	foundAlg := false
+	for _, p := range parts {
+		if p == "argon2id" {
+			foundAlg = true
+			break
+		}
 	}
-	if parts[0] != "argon2id" {
-		return false, errors.New("unsupported algorithm")
+	if !foundAlg {
+		return false, errors.New("unsupported algorithm or invalid encoded hash format")
 	}
 
-	// params are in parts[2]
-	var memory uint32
-	var time uint32
-	var parallelism uint8
-	_, err := fmt.Sscanf(parts[2], "m=%d,t=%d,p=%d", &memory, &time, &parallelism)
+	// Need at least params + salt + hash
+	if len(parts) < 3 {
+		return false, errors.New("invalid encoded hash format")
+	}
+
+	// Find params part (one that contains m=)
+	var paramsPart string
+	for _, p := range parts {
+		if strings.Contains(p, "m=") && strings.Contains(p, "t=") && strings.Contains(p, "p=") {
+			paramsPart = p
+			break
+		}
+	}
+	if paramsPart == "" {
+		return false, errors.New("parameters not found in encoded hash")
+	}
+
+	// Salt and hash are expected to be the last two parts
+	if len(parts) < 2 {
+		return false, errors.New("invalid encoded hash format")
+	}
+	saltB64 := parts[len(parts)-2]
+	hashB64 := parts[len(parts)-1]
+
+	// Parse params
+	var memory, time uint32
+	var parallelism uint32
+	_, err := fmt.Sscanf(paramsPart, "m=%d,t=%d,p=%d", &memory, &time, &parallelism)
 	if err != nil {
 		return false, err
 	}
 
 	// Try RawStd first, fall back to Std (handles presence/absence of padding)
-	salt, err := base64.RawStdEncoding.DecodeString(parts[3])
+	salt, err := base64.RawStdEncoding.DecodeString(saltB64)
 	if err != nil {
-		salt, err = base64.StdEncoding.DecodeString(parts[3])
+		salt, err = base64.StdEncoding.DecodeString(saltB64)
 		if err != nil {
 			return false, err
 		}
 	}
 
-	hash, err := base64.RawStdEncoding.DecodeString(parts[4])
+	hash, err := base64.RawStdEncoding.DecodeString(hashB64)
 	if err != nil {
-		hash, err = base64.StdEncoding.DecodeString(parts[4])
+		hash, err = base64.StdEncoding.DecodeString(hashB64)
 		if err != nil {
 			return false, err
 		}
 	}
 
-	computedHash := argon2.IDKey([]byte(password), salt, time, memory, parallelism, uint32(len(hash)))
+	if len(hash) == 0 {
+		return false, errors.New("decoded hash is empty")
+	}
+
+	computedHash := argon2.IDKey([]byte(password), salt, time, memory, uint8(parallelism), uint32(len(hash)))
 
 	return subtleCompare(hash, computedHash), nil
 }
