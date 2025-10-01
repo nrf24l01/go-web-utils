@@ -1,4 +1,4 @@
-package goorm
+package pg_kit
 
 import (
 	"time"

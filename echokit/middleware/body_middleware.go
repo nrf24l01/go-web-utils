@@ -1,21 +1,12 @@
-package echokit
+package middleware
 
 import (
 	"net/http"
 
-	"github.com/go-playground/validator"
 	"github.com/labstack/echo/v4"
 )
 
-type CustomValidator struct {
-	Validator *validator.Validate
-}
-
-func (cv *CustomValidator) Validate(i interface{}) error {
-	return cv.Validator.Struct(i)
-}
-
-func ValidationMiddleware(schemaFactory func() interface{}) echo.MiddlewareFunc {
+func BodyValidationMiddleware(schemaFactory func() interface{}) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
 			schema := schemaFactory()

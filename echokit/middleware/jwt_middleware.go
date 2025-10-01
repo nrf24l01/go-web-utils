@@ -1,4 +1,4 @@
-package echokit
+package middleware
 
 import (
 	"net/http"
@@ -8,7 +8,6 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-// JWTMiddleware создает middleware для проверки JWT токена
 func JWTMiddleware(accessSecret []byte) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
