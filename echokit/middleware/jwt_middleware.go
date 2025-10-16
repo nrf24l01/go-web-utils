@@ -3,9 +3,9 @@ package middleware
 import (
 	"net/http"
 
+	"github.com/nrf24l01/go-web-utils/auth"
 	"github.com/nrf24l01/go-web-utils/config"
 	"github.com/nrf24l01/go-web-utils/echokit/schemas"
-	"github.com/nrf24l01/go-web-utils/jwtutil"
 
 	"github.com/labstack/echo/v4"
 )
@@ -30,7 +30,7 @@ func JWTMiddleware(config config.JWTConfig) echo.MiddlewareFunc {
 			}
 
 			// Проверяем токен
-			claims, err := jwtutil.ValidateToken(tokenString, config.AccessJWTSecret)
+			claims, err := auth.ValidateToken(tokenString, []byte(config.AccessJWTSecret))
 			if err != nil {
 				return c.JSON(http.StatusUnauthorized, map[string]string{"error": "invalid or expired token"})
 			}
