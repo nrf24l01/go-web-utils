@@ -3,13 +3,12 @@ package pg_kit
 import (
 	"fmt"
 
-	"matprak-backend/core"
-
+	"github.com/nrf24l01/go-web-utils/config"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
-func RegisterPostgres(cfg *core.Config, models ...interface{}) (*gorm.DB, error) {
+func RegisterPostgres(cfg *config.PGConfig, models ...interface{}) (*gorm.DB, error) {
 	dsn := fmt.Sprintf(
 		"host=%s user=%s password=%s dbname=%s port=%s sslmode=%s TimeZone=%s",
 		cfg.PGHost, cfg.PGUser, cfg.PGPassword, cfg.PGDatabase, cfg.PGPort, cfg.PGSSLMode, cfg.PGTimeZone,

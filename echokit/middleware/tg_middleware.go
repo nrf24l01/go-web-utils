@@ -7,10 +7,11 @@ import (
 	"time"
 
 	"github.com/labstack/echo/v4"
+	"github.com/nrf24l01/go-web-utils/config"
 	initdata "github.com/telegram-mini-apps/init-data-golang"
 )
 
-func TGMiddleware(initDataExpireHours int, botToken string) echo.MiddlewareFunc {
+func TGMiddleware(config config.TgWebAppConfig) echo.MiddlewareFunc {
     return func(next echo.HandlerFunc) echo.HandlerFunc {
         return func(c echo.Context) error {
 			authHeader := c.Request().Header.Get("Authorization")
@@ -27,9 +28,9 @@ func TGMiddleware(initDataExpireHours int, botToken string) echo.MiddlewareFunc 
 				return c.JSON(http.StatusUnauthorized, schemas.Error{Error: "invalid token format"})
 			}
 
-			expInHour := time.Duration(initDataExpireHours) * time.Hour
+			expInHour := time.Duration(config.InitDataExpireHours) * time.Hour
 
-			verifyErr := initdata.Validate(tokenString, botToken, expInHour)
+			verifyErr := initdata.Validate(tokenString, config.TgBotToken, expInHour)
 			if verifyErr != nil {
 				return c.JSON(http.StatusUnauthorized, schemas.Error{Error: "invalid token"})
 			}
