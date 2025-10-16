@@ -2,6 +2,7 @@ package pg_kit
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/nrf24l01/go-web-utils/config"
 	"gorm.io/driver/postgres"
@@ -29,6 +30,7 @@ func RegisterPostgres(cfg *config.PGConfig, models ...interface{}) (*gorm.DB, er
 		if err := db.AutoMigrate(models...); err != nil {
 			return nil, fmt.Errorf("failed to migrate database: %w", err)
 		}
+		log.Printf("Database migrated successfully for models: %v", models)
 	}
 
 	return db, nil
