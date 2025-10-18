@@ -16,7 +16,7 @@ func BodyValidationMiddleware(schemaFactory func() interface{}) echo.MiddlewareF
 			}
 
 			if err := c.Validate(schema); err != nil {
-				return c.JSON(http.StatusBadRequest, map[string]string{"error": err.Error()})
+				return c.JSON(http.StatusBadRequest, FormatValidationErrors(err))
 			}
 
 			c.Set("validatedBody", schema)

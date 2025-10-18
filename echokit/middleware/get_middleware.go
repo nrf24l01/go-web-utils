@@ -18,7 +18,7 @@ func QueryValidationMiddleware(schemaFactory func() interface{}) echo.Middleware
 
 			// Validate using Echo's validator
 			if err := c.Validate(schema); err != nil {
-				return c.JSON(http.StatusBadRequest, map[string]string{"error": err.Error()})
+				return c.JSON(http.StatusBadRequest, FormatValidationErrors(err))
 			}
 
 			// Store validated data in context
