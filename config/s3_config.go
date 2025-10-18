@@ -11,7 +11,7 @@ type S3Config struct {
 	AccessKey string `env:"S3_ACCESS_KEY" envDefault:""`
 	SecretKey string `env:"S3_SECRET_KEY" envDefault:""`
 	UseSSL    bool   `env:"S3_USE_SSL" envDefault:"true"`
-	BareURL   string `env:"S3_BARE_URL" envDefault:"http://127.0.0.1:9000"`
+	BaseURL   string `env:"S3_BASE_URL" envDefault:"http://127.0.0.1:9000"`
 }
 
 func LoadS3ConfigFromEnv() *S3Config {

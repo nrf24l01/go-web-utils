@@ -47,7 +47,7 @@ func (c *Client) GeneratePresignedPutURL(ctx context.Context, bucket string, exp
 }
 
 func (c *Client) GeneratePresignedGetURL(ctx context.Context, bucket, object string, expires time.Duration) (string, error) {
-	presignedURL, err := c.minio.PresignedGetObject(ctx, bucket, object, expires)
+	presignedURL, err := c.minio.PresignedGetObject(ctx, bucket, object, expires, nil)
 	if err != nil {
 		return "", fmt.Errorf("generate presigned GET url: %w", err)
 	}
