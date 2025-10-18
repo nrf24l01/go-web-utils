@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"github.com/gabriel-vasile/mimetype"
-	"github.com/go-playground/validator/v10"
+	"github.com/go-playground/validator"
 )
 
 // ParseSize parses human-readable size like "5MB", "10KB", etc.
