@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"fmt"
+	"regexp"
 	"strings"
 
 	"github.com/go-playground/validator/v10"
@@ -20,7 +21,18 @@ func FormatValidationErrors(err error) map[string]interface{} {
 			errors[strings.ToLower(fieldName)] = message
 		}
 	} else {
-		errors["error"] = err.Error()
+		// Try to parse common validator error string formats, e.g.:
+		// "Key: 'Struct.Field' Error:Field validation for 'Field' failed on the 'required' tag"
+		re := regexp.MustCompile(`Field validation for '([^']+)' failed on the '([^']+)' tag`)
+		matches := re.FindStringSubmatch(err.Error())
+		if len(matches) == 3 {
+			fieldName := matches[1]
+			tag := matches[2]
+			message := getReadableErrorMessage(fieldName, tag, "")
+			errors[strings.ToLower(fieldName)] = message
+		} else {
+			errors["error"] = err.Error()
+		}
 	}
 
 	return map[string]interface{}{
