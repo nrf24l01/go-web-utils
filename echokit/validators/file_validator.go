@@ -2,12 +2,13 @@ package validators
 
 import (
 	"errors"
+	"log"
 	"mime/multipart"
 	"strconv"
 	"strings"
 
 	"github.com/gabriel-vasile/mimetype"
-	"github.com/go-playground/validator"
+	"github.com/go-playground/validator/v10"
 )
 
 // ParseSize parses human-readable size strings like "5MB", "10KB", "512B".
@@ -87,7 +88,12 @@ func validateSingleFileType(fh *multipart.FileHeader, allowed map[string]struct{
 	if err != nil {
 		return false
 	}
-	if _, ok := allowed[mtype.String()]; !ok {
+	
+	detected := mtype.String()
+	// DEBUG: log detected MIME type (remove in production)
+	println("DEBUG: File:", fh.Filename, "Detected MIME:", detected)
+	
+	if _, ok := allowed[detected]; !ok {
 		return false
 	}
 	return true
@@ -97,6 +103,7 @@ func validateSingleFileType(fh *multipart.FileHeader, allowed map[string]struct{
 // Usage in struct tag: `validate:"filetype=image/png,image/jpeg"`
 // NOTE: do NOT use '|' inside the parameter (validator internal parsing will split on |).
 func fileTypeValidator(fl validator.FieldLevel) bool {
+	log.Printf("VALIDATION")
 	param := fl.Param()
 	if strings.TrimSpace(param) == "" {
 		// No restriction declared -> consider valid.
@@ -133,6 +140,7 @@ func fileTypeValidator(fl validator.FieldLevel) bool {
 // fileSizeValidator is the validator tag handler for "filesize".
 // Usage: `validate:"filesize=5MB"`
 func fileSizeValidator(fl validator.FieldLevel) bool {
+	log.Printf("VALIDATION")
 	param := strings.TrimSpace(fl.Param())
 	if param == "" {
 		// no size limit set -> valid
@@ -175,5 +183,6 @@ func RegisterFileValidations(v *validator.Validate) error {
 	if err := v.RegisterValidation("filesize", fileSizeValidator); err != nil {
 		return err
 	}
+	log.Printf("Registered filetype and filesize validators")
 	return nil
 }
