@@ -1,8 +1,10 @@
 package s3util
 
 import (
+	"bytes"
 	"context"
 	"fmt"
+	"io"
 	"net/url"
 	"time"
 
@@ -64,6 +66,29 @@ func (c *Client) GetPermanentObjectURL(bucket, object string) string {
 		return fmt.Sprintf("%s%s/%s", c.baseURL[:len(c.baseURL)-1], bucket, object)
 	}
 	return fmt.Sprintf("%s/%s/%s", c.baseURL, bucket, object)
+}
+
+func (c *Client) UploadFile(ctx context.Context, bucket, objectName string, data []byte, contentType string) error {
+	_, err := c.minio.PutObject(ctx, bucket, objectName, bytes.NewReader(data), int64(len(data)), minio.PutObjectOptions{
+		ContentType: contentType,
+	})
+	if err != nil {
+		return fmt.Errorf("upload file: %w", err)
+	}
+	return nil
+}
+
+func (c *Client) DownloadFile(ctx context.Context, bucket, objectName string) ([]byte, error) {
+	obj, err := c.minio.GetObject(ctx, bucket, objectName, minio.GetObjectOptions{})
+	if err != nil {
+		return nil, fmt.Errorf("download file: %w", err)
+	}
+	defer obj.Close()
+	data, err := io.ReadAll(obj)
+	if err != nil {
+		return nil, fmt.Errorf("read file: %w", err)
+	}
+	return data, nil
 }
 
 func replaceHostWithBaseURL(originalURL string, baseURL string) (string, error) {
