@@ -52,13 +52,10 @@ func MultipartValidationMiddleware(schemaFactory func() interface{}) echo.Middle
 				return c.JSON(http.StatusBadRequest, map[string]string{"error": err.Error()})
 			}
 
-			println("DEBUG: Before validation, schema:", schema)
 			// Validate schema
 			if err := c.Validate(schema); err != nil {
-				println("DEBUG: Validation FAILED:", err.Error())
 				return c.JSON(http.StatusUnprocessableEntity, FormatValidationErrors(err))
 			}
-			println("DEBUG: Validation PASSED")
 
 			c.Set("validatedBody", schema)
 			return next(c)
@@ -74,19 +71,12 @@ func bindMultipartForm(c echo.Context, schema interface{}, form *multipart.Form)
 	}
 	typ := val.Type()
 
-	println("DEBUG: Binding multipart form, fields count:", val.NumField())
-	println("DEBUG: Available files in form:", len(form.File))
-	for key := range form.File {
-		println("DEBUG: Form file key:", key)
-	}
-
 	for i := 0; i < val.NumField(); i++ {
 		field := val.Field(i)
 		fieldType := typ.Field(i)
 
 		// Skip unexported fields
 		if !field.CanSet() {
-			println("DEBUG: Field", fieldType.Name, "cannot be set (unexported)")
 			continue
 		}
 
@@ -96,19 +86,16 @@ func bindMultipartForm(c echo.Context, schema interface{}, form *multipart.Form)
 			formTag = fieldType.Name
 		}
 
-		println("DEBUG: Processing field:", fieldType.Name, "form tag:", formTag, "type:", field.Type())
 
 		// Handle file fields
 		if field.Type() == reflect.TypeOf(&multipart.FileHeader{}) {
 			if files, ok := form.File[formTag]; ok && len(files) > 0 {
-				println("DEBUG: Setting file for field:", fieldType.Name, "filename:", files[0].Filename)
 				field.Set(reflect.ValueOf(files[0]))
 			} else {
 				println("DEBUG: No file found for field:", fieldType.Name, "form tag:", formTag)
 			}
 		} else if field.Type() == reflect.TypeOf([]*multipart.FileHeader{}) {
 			if files, ok := form.File[formTag]; ok {
-				println("DEBUG: Setting", len(files), "files for field:", fieldType.Name)
 				field.Set(reflect.ValueOf(files))
 			}
 		} else {

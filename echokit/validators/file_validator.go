@@ -90,8 +90,6 @@ func validateSingleFileType(fh *multipart.FileHeader, allowed map[string]struct{
 	}
 	
 	detected := mtype.String()
-	// DEBUG: log detected MIME type (remove in production)
-	println("DEBUG: File:", fh.Filename, "Detected MIME:", detected)
 	
 	if _, ok := allowed[detected]; !ok {
 		return false
@@ -103,7 +101,6 @@ func validateSingleFileType(fh *multipart.FileHeader, allowed map[string]struct{
 // Usage in struct tag: `validate:"filetype=image/png,image/jpeg"`
 // NOTE: do NOT use '|' inside the parameter (validator internal parsing will split on |).
 func fileTypeValidator(fl validator.FieldLevel) bool {
-	log.Printf("VALIDATION")
 	param := fl.Param()
 	if strings.TrimSpace(param) == "" {
 		// No restriction declared -> consider valid.
@@ -122,15 +119,8 @@ func fileTypeValidator(fl validator.FieldLevel) bool {
 
 	field := fl.Field().Interface()
 	switch v := field.(type) {
-	case *multipart.FileHeader:
-		return validateSingleFileType(v, allowed)
-	case []*multipart.FileHeader:
-		for _, fh := range v {
-			if !validateSingleFileType(fh, allowed) {
-				return false
-			}
-		}
-		return true
+	case multipart.FileHeader:
+		return validateSingleFileType(&v, allowed)
 	default:
 		// Unsupported field type
 		return false
@@ -140,7 +130,6 @@ func fileTypeValidator(fl validator.FieldLevel) bool {
 // fileSizeValidator is the validator tag handler for "filesize".
 // Usage: `validate:"filesize=5MB"`
 func fileSizeValidator(fl validator.FieldLevel) bool {
-	log.Printf("VALIDATION")
 	param := strings.TrimSpace(fl.Param())
 	if param == "" {
 		// no size limit set -> valid
@@ -154,18 +143,8 @@ func fileSizeValidator(fl validator.FieldLevel) bool {
 
 	field := fl.Field().Interface()
 	switch v := field.(type) {
-	case *multipart.FileHeader:
-		if v == nil {
-			return false
-		}
+	case multipart.FileHeader:
 		return v.Size <= maxBytes
-	case []*multipart.FileHeader:
-		for _, fh := range v {
-			if fh == nil || fh.Size > maxBytes {
-				return false
-			}
-		}
-		return true
 	default:
 		return false
 	}
