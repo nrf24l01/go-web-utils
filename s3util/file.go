@@ -7,7 +7,7 @@ import (
 	"mime/multipart"
 )
 
-func FileHash(fileHeader *multipart.FileHeader) (string, error) {
+func FileHashSHA256(fileHeader *multipart.FileHeader) (string, error) {
     file, err := fileHeader.Open()
     if err != nil {
         return "", err
