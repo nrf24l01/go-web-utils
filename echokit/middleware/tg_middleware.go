@@ -1,7 +1,6 @@
 package middleware
 
 import (
-	"log"
 	"matprak-backend/schemas"
 	"net/http"
 	"time"
@@ -41,7 +40,6 @@ func TGMiddleware(config config.TgWebAppConfig) echo.MiddlewareFunc {
 			if tokenData.User.ID != 0 {
 				c.Set("userID", tokenData.User.ID)
 				c.Set("userName", tokenData.User.Username)
-				log.Printf("User ID: %d, Username: %s", tokenData.User.ID, tokenData.User.Username)
 			} else {
 				return c.JSON(http.StatusUnauthorized, schemas.Error{Error: "token does not contain user data"})
 			}
