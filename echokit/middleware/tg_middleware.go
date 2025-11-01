@@ -1,9 +1,10 @@
 package middleware
 
 import (
-	"matprak-backend/schemas"
 	"net/http"
 	"time"
+
+	"github.com/nrf24l01/go-web-utils/echokit/schemas"
 
 	"github.com/labstack/echo/v4"
 	"github.com/nrf24l01/go-web-utils/config"
