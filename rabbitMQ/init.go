@@ -2,7 +2,8 @@ package rabbitMQ
 
 import (
 	"fmt"
-	"go-web-utils/config"
+
+	"github.com/nrf24l01/go-web-utils/config"
 
 	amqp "github.com/rabbitmq/amqp091-go"
 )
