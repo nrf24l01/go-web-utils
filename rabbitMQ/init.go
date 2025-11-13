@@ -27,8 +27,8 @@ func RegisterRabbitMQ(cfg *config.RabbitMQConfig) (*RabbitMQ, error) {
 
 	rabbitMQ := &RabbitMQ{
 		cfg:     cfg,
-		conn:    conn,
-		channel: channel,
+		Conn:    conn,
+		Channel: channel,
 	}
 
 	return rabbitMQ, nil
