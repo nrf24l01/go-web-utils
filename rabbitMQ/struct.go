@@ -7,6 +7,6 @@ import (
 
 type RabbitMQ struct {
 	cfg *config.RabbitMQConfig
-	conn *amqp.Connection
-	channel *amqp.Channel
+	Conn *amqp.Connection
+	Channel *amqp.Channel
 }
