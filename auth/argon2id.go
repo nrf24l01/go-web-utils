@@ -7,24 +7,10 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/nrf24l01/go-web-utils/config"
 	"golang.org/x/crypto/argon2"
 )
 
-type Params struct {
-	Memory      uint32
-	Time        uint32
-	Parallelism uint8
-	SaltLength  uint32
-	KeyLength   uint32
-}
-
-var DefaultParams = &Params{
-	Memory:      64 * 1024, // 64 MB
-	Time:        3,
-	Parallelism: 4,
-	SaltLength:  16,
-	KeyLength:   32,
-}
 
 func generateSalt(length uint32) ([]byte, error) {
 	salt := make([]byte, length)
@@ -35,7 +21,7 @@ func generateSalt(length uint32) ([]byte, error) {
 	return salt, nil
 }
 
-func HashPassword(password string, p *Params) (string, error) {
+func HashPassword(password string, p *config.Argon2idConfig) (string, error) {
 	salt, err := generateSalt(p.SaltLength)
 	if err != nil {
 		return "", err
@@ -43,7 +29,6 @@ func HashPassword(password string, p *Params) (string, error) {
 
 	hash := argon2.IDKey([]byte(password), salt, p.Time, p.Memory, p.Parallelism, p.KeyLength)
 
-	// Возвращаем всё одной строкой
 	encoded := fmt.Sprintf("$argon2id$v=19$m=%d,t=%d,p=%d$%s$%s",
 		p.Memory, p.Time, p.Parallelism,
 		base64.RawStdEncoding.EncodeToString(salt),
