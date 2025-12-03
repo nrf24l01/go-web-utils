@@ -37,15 +37,22 @@ func GenerateTokenPair(accessClaims, refreshClaims jwt.MapClaims, cfg *config.JW
 }
 
 func ValidateToken(tokenString string, cfg *config.JWTConfig) (jwt.MapClaims, error) {
-	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+	keyFunc := func(secret string) jwt.Keyfunc {
+		return func(token *jwt.Token) (interface{}, error) {
+			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+				return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+			}
+			return []byte(secret), nil
 		}
-		return secret, nil
-	})
+	}
 
+	// Try parsing with access secret first, then fall back to refresh secret.
+	token, err := jwt.Parse(tokenString, keyFunc(cfg.AccessJWTSecret))
 	if err != nil {
-		return nil, err
+		token, err = jwt.Parse(tokenString, keyFunc(cfg.RefreshJWTSecret))
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
