@@ -21,3 +21,9 @@ var DefaultNotFoundResponse = ErrorResponse{
 	Message: "Not Found",
 	Code:    http.StatusNotFound,
 }
+
+var DefaultUnauthorizedResponse = ErrorResponse{
+	Message: "Unauthorized",
+	Code:    http.StatusUnauthorized,
+}
+
