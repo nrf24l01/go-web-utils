@@ -5,35 +5,31 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/nrf24l01/go-web-utils/config"
 )
 
-func GenerateAccessToken(userID string, username string, accessSecret []byte) (string, error) {
-	claims := jwt.MapClaims{
-		"user_id":  userID,
-		"username": username,
-		"exp":      time.Now().Add(15 * time.Minute).Unix(), // Access token expires in 15 minutes
-		"iat":      time.Now().Unix(),
-	}
+func GenerateAccessToken(claims jwt.MapClaims, cfg *config.JWTConfig) (string, error) {
+	claims["exp"] = time.Now().Add(time.Duration(cfg.AccessTokenExpiryMinutes) * time.Minute).Unix() // Access token expires in configured minutes
+	claims["iat"] = time.Now().Unix()
+
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	return token.SignedString(accessSecret)
+	return token.SignedString([]byte(cfg.AccessJWTSecret))
 }
 
-func GenerateRefreshToken(userID string, refreshSecret []byte) (string, error) {
-	claims := jwt.MapClaims{
-		"user_id": userID,
-		"exp":     time.Now().Add(7 * 24 * time.Hour).Unix(), // Refresh token expires in 7 days
-		"iat":     time.Now().Unix(),
-	}
+func GenerateRefreshToken(claims jwt.MapClaims, cfg *config.JWTConfig) (string, error) {
+	claims["exp"] = time.Now().Add(time.Duration(cfg.RefreshTokenExpiryMinutes) * time.Minute).Unix() // Refresh token expires in configured minutes
+	claims["iat"] = time.Now().Unix()
+
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	return token.SignedString(refreshSecret)
+	return token.SignedString([]byte(cfg.RefreshJWTSecret))
 }
 
-func GenerateTokenPair(userID string, username string, accessSecret, refreshSecret []byte) (accessToken string, refreshToken string, err error) {
-	accessToken, err = GenerateAccessToken(userID, username, accessSecret)
+func GenerateTokenPair(accessClaims, refreshClaims jwt.MapClaims, cfg *config.JWTConfig) (accessToken string, refreshToken string, err error) {
+	accessToken, err = GenerateAccessToken(accessClaims, cfg)
 	if err != nil {
 		return "", "", err
 	}
-	refreshToken, err = GenerateRefreshToken(userID, refreshSecret)
+	refreshToken, err = GenerateRefreshToken(refreshClaims, cfg)
 	if err != nil {
 		return "", "", err
 	}
