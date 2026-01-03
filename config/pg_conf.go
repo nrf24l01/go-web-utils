@@ -7,13 +7,13 @@ import (
 )
 
 type PGConfig struct {
-	PGHost     string `env:"PG_HOST" envDefault:"localhost"`
-	PGPort     string `env:"PG_PORT" envDefault:"5432"`
-	PGUser     string `env:"PG_USER" envDefault:"postgres"`
-	PGPassword string `env:"PG_PASSWORD" envDefault:"password"`
-	PGDatabase string `env:"PG_DATABASE" envDefault:"postgres"`
-	PGSSLMode  string `env:"PG_SSLMODE" envDefault:"disable"`
-	PGTimeZone string `env:"PG_TIMEZONE" envDefault:"UTC"`
+	PGHost     string `env:"POSTGRES_HOST"`
+	PGPort     string `env:"POSTGRES_PORT"`
+	PGUser     string `env:"POSTGRES_USER"`
+	PGPassword string `env:"POSTGRES_PASSWORD"`
+	PGDatabase string `env:"POSTGRES_DATABASE"`
+	PGSSLMode  string `env:"POSTGRES_SSLMODE"`
+	PGTimeZone string `env:"POSTGRES_TIMEZONE"`
 }
 
 func LoadPGConfigFromEnv() *PGConfig {
