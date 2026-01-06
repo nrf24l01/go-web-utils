@@ -11,7 +11,7 @@ type PGConfig struct {
 	PGPort     string `env:"POSTGRES_PORT"`
 	PGUser     string `env:"POSTGRES_USER"`
 	PGPassword string `env:"POSTGRES_PASSWORD"`
-	PGDatabase string `env:"POSTGRES_DATABASE"`
+	PGDatabase string `env:"POSTGRES_DB"`
 	PGSSLMode  string `env:"POSTGRES_SSLMODE"`
 	PGTimeZone string `env:"POSTGRES_TIMEZONE"`
 }
