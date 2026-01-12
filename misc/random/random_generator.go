@@ -17,7 +17,7 @@ type RandomGeneratorConfig struct {
 	Charset string
 }
 
-func newFastRand(cfg RandomGeneratorConfig) (RandomGenerator, error) {
+func NewRandomGenerator(cfg RandomGeneratorConfig) (RandomGenerator, error) {
 	var seed int64
 	if err := binary.Read(rand.Reader, binary.LittleEndian, &seed); err != nil {
 		return RandomGenerator{}, err
@@ -40,4 +40,17 @@ func (rg *RandomGenerator) RandomString(length int) string {
 		b[i] = rg.charset[rg.mr.Intn(len(rg.charset))]
 	}
 	return string(b)
+}
+
+func (rg *RandomGenerator) RandomBytes(length int) ([]byte, error) {
+	b := make([]byte, length)
+	_, err := rand.Read(b)
+	if err != nil {
+		return nil, err
+	}
+	return b, nil
+}
+
+func (rg *RandomGenerator) RandomInt(min, max int) int {
+	return rg.mr.Intn(max-min) + min
 }
