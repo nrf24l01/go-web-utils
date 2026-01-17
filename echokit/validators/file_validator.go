@@ -11,8 +11,6 @@ import (
 	"github.com/go-playground/validator/v10"
 )
 
-// ParseSize parses human-readable size strings like "5MB", "10KB", "512B".
-// Returns size in bytes or error.
 func ParseSize(param string) (int64, error) {
 	if param == "" {
 		return 0, errors.New("empty size parameter")
@@ -46,8 +44,6 @@ func ParseSize(param string) (int64, error) {
 	return val * mult, nil
 }
 
-// splitAllowedParam splits a parameter that lists allowed MIME types.
-// It accepts ',' or ';' as separators. Trims whitespace and drops empties.
 func splitAllowedParam(param string) []string {
 	if param == "" {
 		return nil
@@ -71,8 +67,6 @@ func splitAllowedParam(param string) []string {
 	return out
 }
 
-// validateSingleFileType checks MIME of the provided FileHeader using mimetype.DetectReader.
-// Returns true if detected mime is in allowed set.
 func validateSingleFileType(fh *multipart.FileHeader, allowed map[string]struct{}) bool {
 	if fh == nil {
 		return false
@@ -97,9 +91,6 @@ func validateSingleFileType(fh *multipart.FileHeader, allowed map[string]struct{
 	return true
 }
 
-// fileTypeValidator is the validator tag handler for "filetype".
-// Usage in struct tag: `validate:"filetype=image/png,image/jpeg"`
-// NOTE: do NOT use '|' inside the parameter (validator internal parsing will split on |).
 func fileTypeValidator(fl validator.FieldLevel) bool {
 	param := fl.Param()
 	if strings.TrimSpace(param) == "" {
@@ -121,14 +112,34 @@ func fileTypeValidator(fl validator.FieldLevel) bool {
 	switch v := field.(type) {
 	case multipart.FileHeader:
 		return validateSingleFileType(&v, allowed)
+	case *multipart.FileHeader:
+		return validateSingleFileType(v, allowed)
+	case []multipart.FileHeader:
+		if len(v) == 0 {
+			return false
+		}
+		for i := range v {
+			if !validateSingleFileType(&v[i], allowed) {
+				return false
+			}
+		}
+		return true
+	case []*multipart.FileHeader:
+		if len(v) == 0 {
+			return false
+		}
+		for _, fh := range v {
+			if !validateSingleFileType(fh, allowed) {
+				return false
+			}
+		}
+		return true
 	default:
 		// Unsupported field type
 		return false
 	}
 }
 
-// fileSizeValidator is the validator tag handler for "filesize".
-// Usage: `validate:"filesize=5MB"`
 func fileSizeValidator(fl validator.FieldLevel) bool {
 	param := strings.TrimSpace(fl.Param())
 	if param == "" {
@@ -145,13 +156,36 @@ func fileSizeValidator(fl validator.FieldLevel) bool {
 	switch v := field.(type) {
 	case multipart.FileHeader:
 		return v.Size <= maxBytes
+	case *multipart.FileHeader:
+		if v == nil {
+			return false
+		}
+		return v.Size <= maxBytes
+	case []multipart.FileHeader:
+		if len(v) == 0 {
+			return false
+		}
+		for i := range v {
+			if v[i].Size > maxBytes {
+				return false
+			}
+		}
+		return true
+	case []*multipart.FileHeader:
+		if len(v) == 0 {
+			return false
+		}
+		for _, fh := range v {
+			if fh == nil || fh.Size > maxBytes {
+				return false
+			}
+		}
+		return true
 	default:
 		return false
 	}
 }
 
-// RegisterFileValidations registers the "filetype" and "filesize" validators
-// into a provided *validator.Validate instance.
 func RegisterFileValidations(v *validator.Validate) error {
 	if v == nil {
 		return errors.New("validator instance is nil")
