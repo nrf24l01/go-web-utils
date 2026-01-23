@@ -1,15 +1,14 @@
 package middleware
 
 import (
-	"context"
 	"fmt"
-	"log/slog"
 
 	"github.com/labstack/echo/v4"
 	echoMw "github.com/labstack/echo/v4/middleware"
+	gologger "github.com/nrf24l01/go-logger"
 )
 
-func RequestLoggerWithTrace() echo.MiddlewareFunc {
+func RequestLogger(l *gologger.Logger) echo.MiddlewareFunc {
 	return echoMw.RequestLoggerWithConfig(echoMw.RequestLoggerConfig{
 		LogLatency:   true,
 		LogRemoteIP:  true,
@@ -29,36 +28,56 @@ func RequestLoggerWithTrace() echo.MiddlewareFunc {
 					traceId = fmt.Sprint(tid)
 				}
 			}
-			if v.Error == nil {
-				slog.LogAttrs(context.Background(), slog.LevelInfo, "REQUEST",
-					slog.String("method", v.Method),
-					slog.String("uri", v.URI),
-					slog.Int("status", v.Status),
-					slog.Duration("latency", v.Latency),
-					slog.String("host", v.Host),
-					slog.String("bytes_in", v.ContentLength),
-					slog.Int64("bytes_out", v.ResponseSize),
-					slog.String("user_agent", v.UserAgent),
-					slog.String("remote_ip", v.RemoteIP),
-					slog.String("request_id", v.RequestID),
-					slog.String("trace_id", traceId),
-				)
-			} else {
-				slog.LogAttrs(context.Background(), slog.LevelError, "REQUEST_ERROR",
-					slog.String("method", v.Method),
-					slog.String("uri", v.URI),
-					slog.Int("status", v.Status),
-					slog.Duration("latency", v.Latency),
-					slog.String("host", v.Host),
-					slog.String("bytes_in", v.ContentLength),
-					slog.Int64("bytes_out", v.ResponseSize),
-					slog.String("user_agent", v.UserAgent),
-					slog.String("remote_ip", v.RemoteIP),
-					slog.String("request_id", v.RequestID),
-					slog.String("trace_id", traceId),
-					slog.String("error", v.Error.Error()),
-				)
+
+			// Base colors
+			reset := gologger.Reset
+			methodColor := gologger.BrightBlue
+			pathColor := gologger.Dim
+			traceColor := gologger.Cyan
+
+			// Status on code
+			statusColor := gologger.BrightGreen
+			switch {
+			case v.Status >= 500:
+				statusColor = gologger.BrightRed
+			case v.Status >= 400:
+				statusColor = gologger.BrightYellow
+			case v.Status >= 300:
+				statusColor = gologger.BrightBlue
+			default:
+				statusColor = gologger.BrightGreen
 			}
+
+			// Combine colors and fields
+			methodField := fmt.Sprintf("%s%s%s", methodColor, v.Method, reset)
+			statusField := fmt.Sprintf("%s%d%s", statusColor, v.Status, reset)
+			pathField := fmt.Sprintf("%s%s%s", pathColor, v.URI, reset)
+			latencyField := fmt.Sprintf("%s", v.Latency)
+
+			tracePart := ""
+			if traceId != "" {
+				tracePart = fmt.Sprintf("(%s%s%s)", traceColor, traceId, reset)
+			}
+
+			// Add req id if exists
+			reqIDPart := ""
+			if v.RequestID != "" {
+				reqIDPart = fmt.Sprintf(" request_id=%s", v.RequestID)
+			}
+
+			// Build final message
+			msg := fmt.Sprintf("%s %s %s %s %s%s",
+				methodField, statusField, pathField, latencyField, tracePart, reqIDPart)
+
+			// Log message
+			httpType := gologger.LogType("HTTP")
+			if v.Error == nil {
+				l.Log(gologger.LevelInfo, httpType, msg, v.RequestID)
+			} else {
+				full := fmt.Sprintf("%s error=%s", msg, v.Error.Error())
+				l.Log(gologger.LevelError, httpType, full, v.RequestID)
+			}
+
 			return nil
 		},
 	})
