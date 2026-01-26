@@ -14,6 +14,7 @@ type PGConfig struct {
 	PGDatabase string `env:"POSTGRES_DB"`
 	PGSSLMode  string `env:"POSTGRES_SSLMODE"`
 	PGTimeZone string `env:"POSTGRES_TIMEZONE"`
+	Migrations string `env:"POSTGRES_MIGRATIONS_DIR"`
 }
 
 func LoadPGConfigFromEnv() *PGConfig {

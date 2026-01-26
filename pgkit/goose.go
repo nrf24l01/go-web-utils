@@ -3,6 +3,7 @@ package pgkit
 import (
 	"database/sql"
 
+	"github.com/nrf24l01/go-web-utils/config"
 	"github.com/pressly/goose/v3"
 )
 
@@ -13,10 +14,10 @@ import (
 // ░░░░▌░░░░░▐░▌░▐▀▀▌░▐░▌░░░░░▐░░░░
 // ░░░░▐░░░░░▐░▌░▌▒▒▐░▐░▌░░░░░▌░░░░
 // ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
-func RunMigrations(db *sql.DB, migrationsDir string) error {
+func RunMigrations(db *sql.DB, pg_cfg *config.PGConfig) error {
 	goose.SetDialect("postgres")
 
-	if err := goose.Up(db, migrationsDir); err != nil {
+	if err := goose.Up(db, pg_cfg.Migrations); err != nil {
 		return err
 	}
 
