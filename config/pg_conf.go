@@ -23,3 +23,30 @@ func LoadPGConfigFromEnv() *PGConfig {
 	}
 	return config
 }
+
+func (cfg *PGConfig) GetDSN() string {
+	dsn := "postgres://"
+	dsn += cfg.PGUser
+	if cfg.PGPassword != "" {
+		dsn += ":" + cfg.PGPassword
+	}
+	dsn += "@" + cfg.PGHost
+	if cfg.PGPort != "" {
+		dsn += ":" + cfg.PGPort
+	}
+	dsn += "/" + cfg.PGDatabase
+	params := ""
+	if cfg.PGSSLMode != "" {
+		params += "sslmode=" + cfg.PGSSLMode
+	}
+	if cfg.PGTimeZone != "" {
+		if params != "" {
+			params += "&"
+		}
+		params += "timezone=" + cfg.PGTimeZone
+	}
+	if params != "" {
+		dsn += "?" + params
+	}
+	return dsn
+}
