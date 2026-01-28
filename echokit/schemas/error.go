@@ -16,11 +16,6 @@ const (
 	NOT_FOUND                ErrorCode = "NOT_FOUND"
 	USER_NOT_FOUND           ErrorCode = "USER_NOT_FOUND"
 	EMAIL_ALREADY_EXISTS     ErrorCode = "EMAIL_ALREADY_EXISTS"
-	USER_INACTIVE            ErrorCode = "USER_INACTIVE"
-	DSL_PARSE_ERROR          ErrorCode = "DSL_PARSE_ERROR"
-	DSL_INVALID_FIELD        ErrorCode = "DSL_INVALID_FIELD"
-	DSL_INVALID_OPERATOR     ErrorCode = "DSL_INVALID_OPERATOR"
-	RULE_NAME_ALREADY_EXISTS ErrorCode = "RULE_NAME_ALREADY_EXISTS"
 	INTERNAL_SERVER_ERROR    ErrorCode = "INTERNAL_SERVER_ERROR"
 )
 
@@ -80,4 +75,11 @@ func GenError(c echo.Context, code ErrorCode, message string, details map[string
 		Details:   details,
 	}
 	return res
+}
+
+
+// CustomErrorCode converts a plain string into the typed ErrorCode.
+// Use when you want an ErrorCode value from a dynamic string.
+func CustomErrorCode(s string) ErrorCode {
+	return ErrorCode(s)
 }
