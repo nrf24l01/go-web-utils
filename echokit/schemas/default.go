@@ -1,29 +1,13 @@
 package schemas
 
-import "net/http"
+import (
+	"github.com/labstack/echo/v4"
+)
 
-var DefaultInternalErrorResponse = ErrorResponse{
-	Message: "Internal Server Error",
-	Code:    http.StatusInternalServerError,
+func GenInternalServerError(c echo.Context) ApiError {
+	return GenError(c, INTERNAL_SERVER_ERROR, "Internal Server Error", nil)
 }
 
-var DefaultPermissionDeniedResponse = ErrorResponse{
-	Message: "Permission Denied",
-	Code:    http.StatusForbidden,
+func GenNotFoundError(c echo.Context) ApiError {
+	return GenError(c, NOT_FOUND, "Not Found", nil)
 }
-
-var DefaultBadRequestResponse = ErrorResponse{
-	Message: "Bad Request",
-	Code:    http.StatusBadRequest,
-}
-
-var DefaultNotFoundResponse = ErrorResponse{
-	Message: "Not Found",
-	Code:    http.StatusNotFound,
-}
-
-var DefaultUnauthorizedResponse = ErrorResponse{
-	Message: "Unauthorized",
-	Code:    http.StatusUnauthorized,
-}
-

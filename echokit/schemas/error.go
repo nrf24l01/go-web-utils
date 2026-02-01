@@ -39,13 +39,7 @@ type ValidationError struct {
 	FieldErrors []FieldError `json:"fieldErrors"`
 }
 
-type DslError struct {
-	Code     string  `json:"code"`
-	Message  string  `json:"message"`
-	Position *int    `json:"position,omitempty"`
-	Near     *string `json:"near,omitempty"`
-}
-
+// GenError generates a standardized ApiError based on the provided context, error code, message, and additional details.
 func GenError(c echo.Context, code ErrorCode, message string, details map[string]interface{}) ApiError {
 	traceID := ""
 	if v := c.Get("traceId"); v != nil {
