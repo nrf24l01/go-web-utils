@@ -11,7 +11,6 @@ import (
 	"golang.org/x/crypto/argon2"
 )
 
-
 func generateSalt(length uint32) ([]byte, error) {
 	salt := make([]byte, length)
 	_, err := rand.Read(salt)

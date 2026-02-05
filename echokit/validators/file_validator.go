@@ -82,9 +82,9 @@ func validateSingleFileType(fh *multipart.FileHeader, allowed map[string]struct{
 	if err != nil {
 		return false
 	}
-	
+
 	detected := mtype.String()
-	
+
 	if _, ok := allowed[detected]; !ok {
 		return false
 	}

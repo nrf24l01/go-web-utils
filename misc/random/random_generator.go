@@ -9,7 +9,7 @@ import (
 const charset string = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 
 type RandomGenerator struct {
-	mr *mrand.Rand
+	mr      *mrand.Rand
 	charset string
 }
 

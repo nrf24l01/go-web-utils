@@ -9,8 +9,8 @@ import (
 )
 
 type RedisClient struct {
-	Client      *redis.Client
-	Ctx         context.Context
+	Client *redis.Client
+	Ctx    context.Context
 }
 
 func NewRedisClient(config *config.RedisConfig) *RedisClient {
@@ -25,8 +25,8 @@ func NewRedisClient(config *config.RedisConfig) *RedisClient {
 		log.Fatalf("Не удалось подключиться к Redis: %v", err)
 	}
 
-		return &RedisClient{
-		Client:      rdb,
-		Ctx:         ctx,
+	return &RedisClient{
+		Client: rdb,
+		Ctx:    ctx,
 	}
 }

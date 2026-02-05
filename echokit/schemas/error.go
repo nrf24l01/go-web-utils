@@ -9,14 +9,14 @@ import (
 type ErrorCode string
 
 const (
-	BAD_REQUEST              ErrorCode = "BAD_REQUEST"
-	VALIDATION_FAILED        ErrorCode = "VALIDATION_FAILED"
-	UNAUTHORIZED             ErrorCode = "UNAUTHORIZED"
-	FORBIDDEN                ErrorCode = "FORBIDDEN"
-	NOT_FOUND                ErrorCode = "NOT_FOUND"
-	USER_NOT_FOUND           ErrorCode = "USER_NOT_FOUND"
-	EMAIL_ALREADY_EXISTS     ErrorCode = "EMAIL_ALREADY_EXISTS"
-	INTERNAL_SERVER_ERROR    ErrorCode = "INTERNAL_SERVER_ERROR"
+	BAD_REQUEST           ErrorCode = "BAD_REQUEST"
+	VALIDATION_FAILED     ErrorCode = "VALIDATION_FAILED"
+	UNAUTHORIZED          ErrorCode = "UNAUTHORIZED"
+	FORBIDDEN             ErrorCode = "FORBIDDEN"
+	NOT_FOUND             ErrorCode = "NOT_FOUND"
+	USER_NOT_FOUND        ErrorCode = "USER_NOT_FOUND"
+	EMAIL_ALREADY_EXISTS  ErrorCode = "EMAIL_ALREADY_EXISTS"
+	INTERNAL_SERVER_ERROR ErrorCode = "INTERNAL_SERVER_ERROR"
 )
 
 type ApiError struct {
@@ -70,7 +70,6 @@ func GenError(c echo.Context, code ErrorCode, message string, details map[string
 	}
 	return res
 }
-
 
 // CustomErrorCode converts a plain string into the typed ErrorCode.
 // Use when you want an ErrorCode value from a dynamic string.

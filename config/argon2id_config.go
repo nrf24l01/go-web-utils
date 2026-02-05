@@ -6,7 +6,6 @@ import (
 	"github.com/caarlos0/env/v11"
 )
 
-
 type Argon2idConfig struct {
 	Memory      uint32 `env:"ARGON2ID_MEMORY" envDefault:"131072"` // in KB
 	Time        uint32 `env:"ARGON2ID_TIME" envDefault:"6"`

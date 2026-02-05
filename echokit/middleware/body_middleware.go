@@ -45,7 +45,6 @@ func bindMultipartForm(c echo.Context, schema interface{}, form *multipart.Form)
 			formTag = fieldType.Name
 		}
 
-
 		// Handle file fields
 		if field.Type() == reflect.TypeOf(&multipart.FileHeader{}) {
 			if files, ok := form.File[formTag]; ok && len(files) > 0 {

@@ -19,7 +19,7 @@ func TraceMiddleware() echo.MiddlewareFunc {
 				slog.LogAttrs(context.Background(), slog.LevelError, "REQUEST_ID_GENERATION_FAILED",
 					slog.String("error", err.Error()),
 				)
-				return c.JSON(http.StatusServiceUnavailable, schemas.ErrorResponse{Message: "REQUEST_ID_GENERATION_FAILED", Code: http.StatusServiceUnavailable})
+				return c.JSON(http.StatusServiceUnavailable, schemas.GenError(c, schemas.INTERNAL_SERVER_ERROR, "REQUEST_ID_GENERATION_FAILED", nil))
 			}
 			c.Set("traceId", uuid.String())
 			c.Set("timestamp", time.Now().UTC().Format(time.RFC3339))
